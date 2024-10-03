@@ -1,0 +1,4 @@
+/Users/abdulkafi/Desktop/Abdulkafi /cmake-build-debug/CMakeFiles/Abdulkafi.dir
+/Users/abdulkafi/Desktop/Abdulkafi /cmake-build-debug/CMakeFiles/run_script.dir
+/Users/abdulkafi/Desktop/Abdulkafi /cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/abdulkafi/Desktop/Abdulkafi /cmake-build-debug/CMakeFiles/rebuild_cache.dir
