@@ -2,8 +2,6 @@
 
 
 int main() {
-    Application::WIDTH=1200;
-    Application::HEIGHT=1200;
 
     Application::Window app;
 
