@@ -5,79 +5,92 @@ project(Abdulkafi)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# جمع جميع ملفات .cpp و .hpp من الجذر وكل المجلدات الفرعية
+# جمع جميع ملفات .cpp و .hpp و .h من المشروع والمجلدات الفرعية
 file(GLOB_RECURSE SOURCES
-        "${CMAKE_SOURCE_DIR}/*.cpp"
-        "${CMAKE_SOURCE_DIR}/*.hpp"
-        "${CMAKE_SOURCE_DIR}/*.h"
-)
-
-# استبعاد الملفات الموجودة في مجلد CMakeFiles
-file(GLOB_RECURSE EXCLUDE_FILES "${CMAKE_BINARY_DIR}/CMakeFiles/*.cpp")
-list(REMOVE_ITEM SOURCES ${EXCLUDE_FILES})
-
-# إضافة ملفات المصدر إلى الهدف التنفيذي (executable target)
-# تحديد المجلدات التي تحتوي على الملفات
-file(GLOB SOURCES
-        "src/*.cpp"        # جميع ملفات CPP في مجلد src
-        "cpp/*.cpp"        # جميع ملفات CPP في مجلد cpp
-        "header/*.h"       # جميع ملفات HEADER في مجلد header
+        "${CMAKE_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_SOURCE_DIR}/cpp/*.cpp"
+        "${CMAKE_SOURCE_DIR}/header/*.hpp"
+        "${CMAKE_SOURCE_DIR}/header/*.h"
+        "${CMAKE_SOURCE_DIR}/main.cpp"  # تضمين main.cpp بشكل صريح
 )
 
 # إضافة الهدف التنفيذي
-add_executable(Abdulkafi ${SOURCES} main.cpp)
+add_executable(Abdulkafi MACOSX_BUNDLE ${SOURCES})
 
 # إضافة مسار المشروع بالكامل إلى include directories
 include_directories(${CMAKE_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/header/)
+include_directories(${CMAKE_SOURCE_DIR}/header)
+include_directories(${CMAKE_SOURCE_DIR}/stb)
 
 # تحديد مسار Vulkan SDK
-set(VULKAN_SDK "/Users/abdulkafi/VulkanSDK/macOS/")
+set(VULKAN_SDK "/Users/mac/VulkanSDK/macOS")
 
 # إضافة مسار الـ include files (headers) لمكتبة Vulkan
-include_directories(${VULKAN_SDK}/Include)
+include_directories(${VULKAN_SDK}/include)
 
-
-# ربط مكتبة Vulkan من /usr/local/lib
-find_library(Vulkan_LIBRARY NAMES vulkan HINTS /usr/local/lib)
-target_link_libraries(Abdulkafi ${Vulkan_LIBRARY})
+# ربط مكتبة Vulkan
+find_library(Vulkan_LIBRARY NAMES vulkan HINTS ${VULKAN_SDK}/lib)
+if (NOT Vulkan_LIBRARY)
+    message(FATAL_ERROR "Could not find Vulkan library")
+endif()
 
 # تحديد مسار MoltenVK ليشير إلى النسخة في /usr/local/lib
 set(MOLTENVK_LIB "/usr/local/lib/libMoltenVK.dylib")
+if (EXISTS ${MOLTENVK_LIB})
+    target_link_libraries(Abdulkafi ${MOLTENVK_LIB})
+else()
+    message(WARNING "MoltenVK library not found at ${MOLTENVK_LIB}")
+endif()
 
-# ربط مكتبة MoltenVK مع المشروع
-target_link_libraries(Abdulkafi ${MOLTENVK_LIB})
+# تحديد مسار GLFW
+set(GLFW_SDK "/Users/mac/glfw")
 
-# تحديد مسار GLFW (المسار إلى مكتبة GLFW)
-set(GLFW_SDK "/Users/abdulkafi/glfw")
-
-# إضافة مسار الـ include files (headers) لمكتبة GLFW
+# إضافة مسار الـ include files لمكتبة GLFW
 include_directories(${GLFW_SDK}/include)
 
 # ربط مكتبة GLFW
 find_library(GLFW_LIBRARY NAMES glfw3 HINTS ${GLFW_SDK}/lib)
-target_link_libraries(Abdulkafi ${GLFW_LIBRARY})
+if (NOT GLFW_LIBRARY)
+    message(FATAL_ERROR "Could not find GLFW library")
+endif()
 
 # ربط مكتبات النظام الأساسية على macOS
-target_link_libraries(Abdulkafi
+target_link_libraries(Abdulkafi ${Vulkan_LIBRARY} ${GLFW_LIBRARY}
         "-framework Cocoa"
         "-framework IOKit"
         "-framework CoreFoundation"
         "-framework CoreVideo"
 )
 
-# إعداد RPATH لمكتبات التشغيل
+# إعداد RPATH لمكتبات التشغيل (تأكد من أن Vulkan SDK يأتي أولاً)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-set(CMAKE_INSTALL_RPATH "/usr/local/lib;/Users/abdulkafi/VulkanSDK/macOS/lib")
+set(CMAKE_INSTALL_RPATH "${VULKAN_SDK}/lib;/usr/local/lib")
 
+# إعداد الأيقونة لتطبيق macOS
+
+set(APP_ICON_MACOSX ${CMAKE_CURRENT_SOURCE_DIR}/Resources/logo.icns)
+set(MACOSX_BUNDLE_ICON_FILE "logo.icns")
+set_source_files_properties(${APP_ICON_MACOSX} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+
+# إضافة متغير الأيقونة إلى Info.plist عن طريق تعيين الخصائص
+set_target_properties(Abdulkafi PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Info.plist
+        RESOURCE "${APP_ICON_MACOSX}"
+)
+# نسخ مجلد Resources إلى داخل حزمة التطبيق بعد البناء
+add_custom_command(
+        TARGET Abdulkafi POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/Resources ${CMAKE_BINARY_DIR}/Abdulkafi.app/Contents/Resources
+        COMMENT "Copying Resources to the application bundle"
+)
 # إعداد بيئة البناء بناءً على نوع البناء
-if (CMAKE_BUILD_TYPE)
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_definitions(-DDEBUG)  # تفعيل DEBUG في بيئة التصحيح
-    elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_definitions(-DNDEBUG)  # تفعيل NDEBUG في بيئة الإصدار
-    endif()
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)
+elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_definitions(-DNDEBUG)
 else()
     message(STATUS "CMAKE_BUILD_TYPE is not set. Defaulting to Release mode.")
     set(CMAKE_BUILD_TYPE "Release")

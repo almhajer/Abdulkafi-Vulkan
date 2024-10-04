@@ -6,14 +6,12 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
 
 namespace Application {
-    inline uint32_t WIDTH = 800;
-    inline uint32_t HEIGHT = 600;
+
 
     class Window {
     public:
@@ -21,6 +19,8 @@ namespace Application {
 
     private:
         GLFWwindow *window;
+         uint32_t WIDTH = 800;
+         uint32_t HEIGHT = 600;
 
         void initWindow();
 
@@ -29,6 +29,11 @@ namespace Application {
         void mainLoop();
 
         void cleanup();
+
+        static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
+
+        // لا تضع Window:: هنا
     };
 }
-#endif //WINDOW_H
+
+#endif // WINDOW_HPP
