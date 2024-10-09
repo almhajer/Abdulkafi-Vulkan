@@ -1,0 +1,5 @@
+/Users/mac/Desktop/Abdulkafi /cmake-build-release/CMakeFiles/Abdulkafi.dir
+/Users/mac/Desktop/Abdulkafi /cmake-build-release/CMakeFiles/package.dir
+/Users/mac/Desktop/Abdulkafi /cmake-build-release/CMakeFiles/package_source.dir
+/Users/mac/Desktop/Abdulkafi /cmake-build-release/CMakeFiles/edit_cache.dir
+/Users/mac/Desktop/Abdulkafi /cmake-build-release/CMakeFiles/rebuild_cache.dir

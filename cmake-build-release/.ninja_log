@@ -1,0 +1,5 @@
+# ninja log v6
+1221	1815	1728433654770339715	Abdulkafi.app/Contents/MacOS/Abdulkafi	98c8d20c8a47076a
+10	995	1728433653559654055	CMakeFiles/Abdulkafi.dir/main.cpp.o	a2772f230d0cecc5
+10	1221	1728433653558845384	CMakeFiles/Abdulkafi.dir/cpp/Window.cpp.o	6312dfce6c1217e8
+4	206	1728434921296318337	build.ninja	4871121388426f47
